@@ -1,0 +1,39 @@
+# Cloudflare Pages Redirect Rules
+# This file ensures older WordPress URL structures map to the new Next.js routes
+# Place this in the 'public' directory of the Next.js app
+#
+# NOTE: /sitemap.xml, /news-sitemap.xml, and /:slug (social-media OG-tag
+# previews) used to be handled here as 200-status "proxy" rules pointing at
+# the Worker. Cloudflare Pages' _redirects only supports proxying to
+# relative, same-site paths — not external domains — so those rules were
+# silently no-ops (Search Console flagged /news-sitemap.xml as returning
+# HTML because of exactly this). They're now handled by
+# functions/sitemap.xml.ts, functions/news-sitemap.xml.ts, and
+# functions/[slug].ts instead, which run as real server-side fetches with
+# no such restriction. llms.txt is now a plain static file
+# (public/llms.txt) for the same reason — no proxying needed at all.
+
+# General structure redirects
+/category/* /categories/:splat 301
+/tag/* /tags/:splat 301
+/author/* /authors/:splat 301
+
+# WordPress's default permalink structure is /YYYY/MM/DD/post-slug/ — this
+# general rule handles ALL such old links at once by keeping only the slug,
+# rather than the single hardcoded example URL previously here (which only
+# fixed that one specific link; every other WordPress-era dated URL fell
+# through to the SPA fallback with no matching article, landing on generic
+# homepage content — this is very likely most of the "old WordPress links
+# redirect to home" reports, since dated permalinks were WordPress's default).
+/:year/:month/:day/:slug /:slug 301
+/about-us /about 301
+
+# Fallback for dynamic trailing slash differences
+# (Next.js config handles most, but Cloudflare enforces edge rules)
+^/(.*)/$ /$1 301
+
+# SPA fallback — any route not matched above or by a real static file /
+# Pages Function (e.g. a client-side-only route like /about, /disclaimer)
+# serves index.html so App.tsx's own client-side routing can take over,
+# instead of Cloudflare Pages returning a blank 404 for it. Must stay last.
+/* /index.html 200

@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    
+    function isValidComment(data) {
+        return data.articleId is string && data.articleId.size() > 0 &&
+               data.author is string && data.author.size() > 0 &&
+               data.text is string && data.text.size() > 0 && data.text.size() <= 5000;
+    }
+    
+    function isValidArticle(data) {
+        return data.title is string && data.title.size() > 0 &&
+               data.slug is string && data.slug.size() > 0 &&
+               data.excerpt is string && data.excerpt.size() > 0 &&
+               data.content is string && data.content.size() > 0 &&
+               data.category is string && data.category.size() > 0;
+    }
+    
+    function isValidSubscription(data) {
+        return data.email is string && data.email.matches('^[^@]+@[^@]+\\.[^@]+$');
+    }
+
+    function isValidDeletedArticle(data) {
+        return data.deletedAt is string;
+    }
+
+    match /deleted_articles/{articleId} {
+      allow read, write: if true;
+    }
+
+    match /articles/{articleId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if true;
+    }
+
+    match /articles/{articleId}/comments/{commentId} {
+      allow read: if isValidId(articleId);
+      allow create: if isValidId(articleId) && isValidComment(request.resource.data);
+      // No updates or deletes for now
+    }
+    
+    // Allow reading the comments collection for queries
+    match /articles/{articleId}/comments {
+       allow read: if isValidId(articleId);
+    }
+    
+    match /tools {
+      allow read: if true;
+    }
+    match /tools/{toolId} {
+      allow read, write: if true;
+    }
+
+    match /subscriptions/{email} {
+      allow create: if isValidSubscription(request.resource.data);
+      allow read: if true;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

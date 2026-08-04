@@ -1,0 +1,45 @@
+# Cloudflare Pages custom response headers.
+# https://developers.cloudflare.com/pages/configuration/headers/
+#
+# Added to address the "Trust and Safety" section of PageSpeed Insights'
+# Best Practices audit: CSP against XSS, HSTS, COOP (clickjacking/origin
+# isolation), and X-Frame-Options.
+#
+# ⚠️ IMPORTANT: the Content-Security-Policy allowlist below was built by
+# scanning every external domain referenced in the current source code
+# (Google Fonts, Sanity, the wsrv.nl image proxy, social share links, the
+# Worker API, etc). It has NOT been verified against a live build in a
+# browser — please deploy to a preview URL first and click through the
+# whole site (including the admin dashboard, image uploads, and any embeds)
+# with devtools' Console open before pointing production traffic at it. Any
+# domain the console reports as blocked just needs adding to the relevant
+# directive below.
+#
+# ⚠️ MONETAG TRADE-OFF (deliberate, revisit later): connect-src and img-src
+# below are opened to all HTTPS origins (`https:`) because Monetag's ad
+# scripts (In-Page Push, zone 11383412) call constantly-rotating tracking
+# domains (my.rtmark.net, jhnwr.com, 3leap.com, ispvh.com, dawac.com, ...)
+# that change without notice — allow-listing them one by one was not
+# sustainable. This means a successful XSS on this site could exfiltrate
+# data to any HTTPS endpoint and load any HTTPS image — script-src is
+# still locked down to specific domains, so arbitrary *script* injection
+# via CSP bypass is not opened up, only data/image egress. Once ad revenue
+# is stable and AdSense is re-applied for, consider tightening this back
+# down (e.g. dropping Monetag, or re-scoping to a specific ad vendor CDN
+# if they publish one).
+#
+# Note: Google's legacy "ads/ga-audiences" remarketing pixel fires against
+# the visitor's local Google ccTLD (google.com.tw, google.co.uk, google.de,
+# ...) which is impossible to whitelist exhaustively in img-src without
+# effectively opening it to all of google.*. It's a Google Ads audience-
+# building pixel, not required for GA4 reporting itself — if it keeps
+# showing as a blocked console error, turn off "Remarketing"/"Ads Personalization"
+# under the GA4 property's Google Signals / Ads Linking settings instead of
+# widening the CSP for it.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Frame-Options: DENY
+  Cross-Origin-Opener-Policy: same-origin
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://nap5k.com https://tzegilo.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https:; frame-src 'self' https://www.facebook.com https://nap5k.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'

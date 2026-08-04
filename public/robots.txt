@@ -1,0 +1,37 @@
+User-agent: *
+Allow: /
+
+# AI crawlers/assistants — explicitly allowed so ChatGPT, Perplexity,
+# Gemini, Copilot, and Claude can index and reference published articles.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://mindwriter.in/sitemap.xml
+Sitemap: https://mindwriter.in/news-sitemap.xml

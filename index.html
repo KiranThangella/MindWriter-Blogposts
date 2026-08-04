@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="te">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Preconnects for the origins on the critical path (Lighthouse:
+         "Preconnect candidates"). Kept to 4 or fewer per best practice. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://wsrv.nl" />
+    <link rel="preconnect" href="https://mindwriter-worker.thangella-kirankumar.workers.dev" />
+
+    <!-- Non-blocking Google Fonts load: the stylesheet downloads with low
+         priority (media="print") and is swapped to media="all" once loaded,
+         so it never blocks First Contentful Paint. The <noscript> fallback
+         covers the no-JS case. -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&family=Outfit:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Sans+Telugu:wght@300;400;500;600;700;800;900&family=NTR&family=Peddana&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600&family=Noto+Serif+Telugu:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&family=Outfit:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Sans+Telugu:wght@300;400;500;600;700;800;900&family=NTR&family=Peddana&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600&family=Noto+Serif+Telugu:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      />
+    </noscript>
+
+    <!-- Preload the hero LCP image at its optimized (resized) URL so the
+         browser can start the download immediately instead of discovering
+         it only after JS parses and React renders Hero.tsx. Must match the
+         src used in Hero.tsx exactly. -->
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      href="https://wsrv.nl/?url=plain-apac-prod-public.komododecks.com/202606/16/6KSdeBRET92luaJv8c0l/image.webp&w=800&h=600&fit=inside&output=webp&q=80"
+    />
+
+    <title>MindWriter — Telugu & English AI Content</title>
+    <meta name="description" content="MindWriter publishes AI, technology, and self-help content in Telugu and English." />
+    <link rel="canonical" href="https://mindwriter.in/" />
+
+    <meta property="og:title" content="MindWriter — Telugu & English AI Content" />
+    <meta property="og:description" content="MindWriter publishes AI, technology, and self-help content in Telugu and English." />
+    <meta property="og:image" content="https://mindwriter.in/logo.png" />
+    <meta property="og:url" content="https://mindwriter.in/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MindWriter" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MindWriter — Telugu & English AI Content" />
+    <meta name="twitter:description" content="MindWriter publishes AI, technology, and self-help content in Telugu and English." />
+    <meta name="twitter:image" content="https://mindwriter.in/logo.png" />
+
+    <!-- Google Analytics (GA4). Loaded async so it never blocks rendering. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JNVL0V39HK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-JNVL0V39HK', { send_page_view: false });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Monetag — In-Page Push ad zone (11383412). Self-injecting snippet,
+         placed at end of body per Monetag's own placement. -->
+    <script>(function(s){s.dataset.zone='11383412',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+  </body>
+</html>
+

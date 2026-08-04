@@ -1,0 +1,1061 @@
+/* Google Fonts are no longer @import-ed here — an @import inside CSS forces
+   the browser to discover, download, and parse it before anything else in
+   this stylesheet can apply, adding a full blocking round-trip to First
+   Contentful Paint. The same stylesheet is now loaded from index.html via a
+   non-blocking <link preload> pattern instead (see index.html). */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-brand-bg: #090A14;
+  --color-brand-card: #151B2B;
+  --color-brand-card-hover: #1E2538;
+  --color-brand-purple: #7C3AED; 
+  --color-brand-purple-hover: #6D28D9;
+  --color-brand-text-muted: #9CA3AF;
+  /* #7C3AED text on our dark backgrounds only measures ~3:1 contrast, below
+     the 4.5:1 WCAG AA minimum for small bold/uppercase text (Lighthouse:
+     "Background and foreground colors do not have a sufficient contrast
+     ratio" on the TECH/AI TOOLS/INSIGHTS badges). This lighter violet keeps
+     the same brand hue but reaches ~8:1 on --color-brand-card. */
+  --color-brand-purple-accessible: #C4B5FD;
+  /* 2500 redesign accents — a calmer, bio-luminescent teal for functional/
+     data UI (HUD readouts, the constellation network, live counters) and a
+     warm "living gold" reserved for rare premium highlights. Both are
+     tuned to ~7:1+ contrast on --color-brand-bg. Light-mode equivalents
+     are darkened further below to hold AA contrast on white. */
+  --color-brand-teal: #4FD8C4;
+  --color-brand-gold: #E8B563;
+  --font-display-2500: "Space Grotesk", "Outfit", sans-serif;
+  --font-serif-te: "Noto Serif Telugu", "Lora", serif;
+  --font-mono-ui: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Plus Jakarta Sans", "Noto Sans Telugu", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", "NTR", "Plus Jakarta Sans", sans-serif;
+  --font-serif: "Lora", "Peddana", Georgia, serif;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--color-brand-bg);
+  color: white;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  overflow-x: hidden;
+  /* max-width: 100% catches any descendant that's wider than the viewport
+     (fixed px widths, negative margins without enough padding to absorb
+     them, unbroken long strings, embedded content) and clips it here as a
+     last line of defense, instead of pushing the whole page into a
+     horizontally-scrollable state with dead space on the right. */
+  max-width: 100%;
+}
+
+@keyframes mw-ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="mw-ticker-scroll"] {
+    animation: none !important;
+  }
+}
+
+/* Rotating colorful glow border used on Latest Articles cards (hover only).
+   Registering --mw-glow-angle as an <angle> lets the browser smoothly
+   interpolate it across the keyframe instead of jumping instantly. */
+@property --mw-glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes mw-glow-spin {
+  to { --mw-glow-angle: 360deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="mw-glow-spin"] {
+    animation: none !important;
+  }
+}
+
+/* --- 2500 redesign utilities --- */
+
+.mw-hud-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: color-mix(in srgb, var(--color-brand-teal) 45%, transparent);
+  pointer-events: none;
+  z-index: 5;
+}
+.mw-hud-corner.tl { top: 14px; left: 14px; border-top: 1px solid; border-left: 1px solid; }
+.mw-hud-corner.tr { top: 14px; right: 14px; border-top: 1px solid; border-right: 1px solid; }
+.mw-hud-corner.bl { bottom: 14px; left: 14px; border-bottom: 1px solid; border-left: 1px solid; }
+.mw-hud-corner.br { bottom: 14px; right: 14px; border-bottom: 1px solid; border-right: 1px solid; }
+
+.mw-coord {
+  font-family: var(--font-mono-ui);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--color-brand-text-muted);
+}
+
+.mw-signal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-brand-teal);
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--color-brand-teal) 70%, transparent);
+}
+
+/* Cinematic scanline texture — dark mode only, off in light mode since it
+   reads as dirt/noise on a pale surface rather than atmosphere. */
+.mw-scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0.025;
+  background: repeating-linear-gradient(to bottom, #fff 0px, #fff 1px, transparent 1px, transparent 3px);
+}
+html.light .mw-scanlines, .light .mw-scanlines {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mw-scanlines { display: none; }
+}
+
+/* --- LIGHT MODE CUSTOM CLASSES & OVERRIDES FOR MAXIMUM READABILITY --- */
+
+html.light, .light {
+  --color-brand-bg: #FFFFFF; /* Pure white */
+  --color-brand-card: #FFFFFF; /* Pure white */
+  --color-brand-card-hover: #F8FAFC; /* Slate 50, for hover distinction */
+  --color-brand-purple: #6D28D9; /* Deep Purple */
+  --color-brand-purple-hover: #5B21B6; /* Darker Purple for hover */
+  --color-brand-purple-accessible: #6D28D9; /* Deep purple already meets contrast on white */
+  --color-brand-text-muted: #475569; /* Slate 600 */
+  --color-brand-teal: #0E8F7C; /* Darkened for AA contrast on white */
+  --color-brand-gold: #A96B0E; /* Darkened for AA contrast on white */
+}
+
+/* Light theme general styles */
+html.light body, .light body {
+  background-color: #FFFFFF;
+  color: #0F172A;
+}
+
+/* Background elements mapping */
+html.light .bg-brand-bg, .light .bg-brand-bg {
+  background-color: #FFFFFF !important;
+}
+
+html.light .bg-brand-card, .light .bg-brand-card {
+  background-color: #FFFFFF !important;
+}
+
+html.light .hover\:bg-brand-card-hover:hover, .light .hover\:bg-brand-card-hover:hover {
+  background-color: #F1F5F9 !important;
+}
+
+/* Text elements mapping to premium high-contrast Slate palette */
+html.light .text-white, .light .text-white {
+  color: #0F172A !important;
+}
+
+/* Exception: text rendered on top of a permanently-dark, hardcoded image
+   gradient overlay (article hero title, homepage featured-story card
+   titles/badges) must stay white regardless of site theme — that overlay
+   is never light, so the rule above was silently turning this text the
+   same near-black as its background, making it invisible in light theme. */
+html.light .on-dark-overlay.text-white, .light .on-dark-overlay.text-white {
+  color: #ffffff !important;
+}
+
+html.light .on-dark-overlay.text-brand-text-muted, .light .on-dark-overlay.text-brand-text-muted {
+  color: #D1D5DB !important;
+}
+
+html.light .text-gray-100, .light .text-gray-100 {
+  color: #1E293B !important;
+}
+
+html.light .text-gray-200, .light .text-gray-200 {
+  color: #334155 !important;
+}
+
+html.light .text-gray-300, .light .text-gray-300 {
+  color: #475569 !important;
+}
+
+html.light .text-gray-400, .light .text-gray-400 {
+  color: #475569 !important;
+}
+
+html.light .text-gray-500, .light .text-gray-500 {
+  color: #64748B !important;
+}
+
+html.light .text-brand-text-muted, .light .text-brand-text-muted {
+  color: #475569 !important;
+}
+
+/* Borders mapping to elegant light borders */
+html.light .border-white\/5, .light .border-white\/5 {
+  border-color: #E2E8F0 !important;
+}
+
+html.light .border-white\/10, .light .border-white\/10 {
+  border-color: #CBD5E1 !important;
+}
+
+html.light .ring-white\/5, .light .ring-white\/5 {
+  --tw-ring-color: #E2E8F0 !important;
+}
+
+html.light .ring-white\/10, .light .ring-white\/10 {
+  --tw-ring-color: #CBD5E1 !important;
+}
+
+/* Layout container highlights (opaque sections/sub-cards) */
+html.light .bg-black\/20, .light .bg-black\/20 {
+  background-color: #F1F5F9 !important;
+}
+
+html.light .bg-black\/30, .light .bg-black\/30 {
+  background-color: #ECEFF1 !important;
+}
+
+html.light .bg-black\/40, .light .bg-black\/40 {
+  background-color: #E2E8F0 !important;
+}
+
+html.light .bg-black\/80, .light .bg-black\/80 {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+}
+
+html.light .bg-brand-card\/45, .light .bg-brand-card\/45 {
+  background-color: #FFFFFF !important;
+}
+
+html.light .bg-brand-card\/95, .light .bg-brand-card\/95 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Standard transparent white layouts */
+html.light .bg-white\/5, .light .bg-white\/5 {
+  background-color: #F1F5F9 !important;
+}
+
+html.light .hover\:bg-white\/5:hover, .light .hover\:bg-white\/5:hover {
+  background-color: #E2E8F0 !important;
+}
+
+html.light .bg-white\/10, .light .bg-white\/10 {
+  background-color: #E2E8F0 !important;
+}
+
+html.light .hover\:bg-white\/10:hover, .light .hover\:bg-white\/10:hover {
+  background-color: #CBD5E1 !important;
+}
+
+/* Sidebar lists and anchor buttons transition colors */
+html.light .hover\:text-white:hover, .light .hover\:text-white:hover {
+  color: #0F172A !important;
+}
+
+html.light .hover\:translate-x-1:hover, .light .hover\:translate-x-1:hover {
+  color: #6D28D9 !important;
+}
+
+/* Badge highlights */
+html.light .bg-blue-900\/40, .light .bg-blue-900\/40 {
+  background-color: #DBEAFE !important;
+}
+
+html.light .text-blue-300, .light .text-blue-300 {
+  color: #1D4ED8 !important;
+}
+
+html.light .ring-blue-700\/50, .light .ring-blue-700\/50 {
+  --tw-ring-color: #BFDBFE !important;
+}
+
+/* Form overrides styling for subscription & search inputs */
+html.light input, .light input {
+  background-color: #FFFFFF !important;
+  color: #1E293B !important;
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+html.light input::placeholder, .light input::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Dynamic Prose Editor / Article Reader content styles in light theme with refined SaaS typography */
+html.light .prose, .light .prose {
+  font-family: inherit !important;
+  color: #334155 !important;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01" !important;
+}
+
+html.light .prose h1, .light .prose h1 {
+  font-size: 2.5rem !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.15 !important;
+  color: #0F172A !important;
+  margin-top: 2.25rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+html.light .prose h2, .light .prose h2 {
+  font-size: 1.875rem !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.25 !important;
+  color: #0F172A !important;
+  margin-top: 2.5rem !important;
+  margin-bottom: 1.125rem !important;
+}
+
+html.light .prose h3, .light .prose h3 {
+  font-size: 1.5rem !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.35 !important;
+  color: #1E293B !important;
+  margin-top: 2rem !important;
+  margin-bottom: 0.875rem !important;
+}
+
+html.light .prose h4, .light .prose h4 {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.4 !important;
+  color: #1E293B !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+html.light .prose p, .light .prose p {
+  font-size: 1.125rem !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.006em !important;
+  line-height: 1.85 !important;
+  color: #334155 !important;
+  margin-bottom: 1.75rem !important;
+}
+
+html.light .prose li, .light .prose li {
+  font-size: 1.125rem !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.006em !important;
+  line-height: 1.8 !important;
+  color: #334155 !important;
+  margin-bottom: 0.625rem !important;
+}
+
+html.light .prose strong, .light .prose strong {
+  font-weight: 700 !important;
+  color: #0F172A !important;
+}
+
+html.light .prose blockquote, .light .prose blockquote {
+  font-size: 1.25rem !important;
+  font-style: italic !important;
+  font-weight: 450 !important;
+  line-height: 1.65 !important;
+  color: #475569 !important;
+  border-left: 4px solid #6D28D9 !important;
+  padding-left: 1.5rem !important;
+  margin-top: 2rem !important;
+  margin-bottom: 2rem !important;
+  background-color: #F8FAFC !important;
+}
+
+html.light .prose pre, .light .prose pre {
+  background-color: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 1rem !important;
+  padding: 1.5rem !important;
+  margin: 2rem 0 !important;
+}
+
+html.light .prose code, .light .prose code {
+  font-family: var(--font-mono) !important;
+  background-color: #F1F5F9 !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #D33697 !important;
+  font-size: 0.875em !important;
+  padding: 0.2rem 0.4rem !important;
+  border-radius: 0.375rem !important;
+}
+
+html.light .prose pre code, .light .prose pre code {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  color: #0F172A !important;
+  font-size: 0.9em !important;
+}
+
+html.light .prose a, .light .prose a {
+  color: #6D28D9 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
+  font-weight: 500 !important;
+}
+
+html.light .prose table, .light .prose table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 2rem 0 !important;
+}
+
+html.light .prose th, .light .prose th {
+  background-color: #F1F5F9 !important;
+  border: 1px solid #E2E8F0 !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 600 !important;
+  color: #0F172A !important;
+  text-align: left !important;
+}
+
+html.light .prose td, .light .prose td {
+  border: 1px solid #E2E8F0 !important;
+  padding: 0.75rem 1rem !important;
+  color: #334155 !important;
+}
+
+/* Responsive tables */
+@media (max-width: 768px) {
+  .prose table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+}
+
+/* --- DARK MODE TABLE STYLES (Enhanced) --- */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.prose thead {
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+.prose th {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem 1.25rem;
+  font-weight: 700;
+  color: white;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.prose td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 1.25rem;
+  color: rgba(255, 255, 255, 0.85);
+  vertical-align: middle;
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.prose tr:hover td {
+  background-color: rgba(139, 92, 246, 0.05);
+}
+
+/* WordPress specific block alignments */
+.prose .aligncenter {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+/* Tiptap & General Editor Table Styles */
+.prose table, .ProseMirror table {
+  border-collapse: collapse !important;
+  table-layout: auto !important;
+  width: 100% !important;
+  margin: 2.5rem 0;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.prose td, .prose th, .ProseMirror td, .ProseMirror th {
+  min-width: 120px;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding: 1rem 1.25rem;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+  word-break: normal;
+  color: inherit;
+}
+
+html.light .prose td, html.light .prose th, html.light .ProseMirror td, html.light .ProseMirror th {
+  border-color: #94A3B8 !important;
+  background-color: #FFFFFF;
+  color: #1E293B;
+}
+
+.prose th, .ProseMirror th {
+  font-weight: 700;
+  text-align: left;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.prose th p, .prose td p, .ProseMirror th p, .ProseMirror td p {
+  margin: 0 !important;
+}
+
+html.light .prose th, html.light .ProseMirror th {
+  background-color: #F1F5F9 !important;
+  color: #0F172A;
+}
+
+.ProseMirror .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: rgba(139, 92, 246, 0.1);
+  pointer-events: none;
+}
+
+.ProseMirror .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  background-color: #8b5cf6;
+  pointer-events: none;
+}
+
+.prose .alignleft {
+  float: left;
+  margin-right: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.prose .alignright {
+  float: right;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.prose figure {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.prose img {
+  border-radius: 1rem;
+  height: auto;
+  max-width: 100%;
+}
+
+/* WordPress Block Supports */
+.prose .wp-block-image {
+  margin: 2rem 0;
+}
+
+.prose .wp-block-image img {
+  margin: 0 auto;
+  display: block;
+}
+
+.prose .wp-block-image.aligncenter img {
+  margin: 0 auto;
+}
+
+.prose .wp-block-image.alignleft img {
+  margin: 0;
+}
+
+.prose .wp-block-table {
+  margin: 2rem 0;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.prose .wp-block-table table {
+  width: 100%;
+  margin: 0;
+}
+
+.prose .wp-block-quote {
+  margin: 2rem 0;
+  padding: 1.5rem 2rem;
+  border-left: 4px solid #8B5CF6;
+  background: rgba(139, 92, 246, 0.05);
+  font-style: italic;
+  border-radius: 0 1rem 1rem 0;
+}
+
+html.light .prose .wp-block-quote {
+  background: #F5F3FF;
+}
+
+.prose .wp-block-media-text {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .prose .wp-block-media-text {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prose ul, .prose ol {
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+/* WordPress layout blocks */
+.prose .wp-block-columns {
+  display: flex;
+  gap: 2rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.prose .wp-block-column {
+  flex: 1;
+  min-width: 250px;
+}
+
+.prose .wp-block-group {
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: rgba(139, 92, 246, 0.03);
+  margin: 2rem 0;
+}
+
+html.light .prose .wp-block-group {
+  background: #F9FAFB;
+}
+
+.prose .wp-block-spacer {
+  height: 2rem;
+}
+
+.prose .wp-block-button {
+  margin: 1.5rem 0;
+}
+
+.prose .wp-block-button__link {
+  background: #8B5CF6;
+  color: white !important;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  text-decoration: none !important;
+  display: inline-block;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.prose .wp-block-button__link:hover {
+  opacity: 0.9;
+}
+
+/* Specific styling for comparison tables */
+.prose table tr:nth-child(even) td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+html.light .prose table tr:nth-child(even) td, .light .prose table tr:nth-child(even) td {
+  background-color: #F8FAFC !important;
+}
+
+.prose table th:first-child, .prose table td:first-child {
+  font-weight: 600;
+}
+
+/* --- Global Layout Typography Overrides for Light Mode --- */
+
+/* App header title, hero titles, displays */
+html.light h1.text-5xl, .light h1.text-5xl,
+html.light h1.text-6xl, .light h1.text-6xl,
+html.light h1.text-7xl, .light h1.text-7xl {
+  font-weight: 850 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.12 !important;
+  text-shadow: none !important;
+}
+
+/* Content library and standard block level titles */
+html.light h2.text-2xl, .light h2.text-2xl,
+html.light h2.text-3xl, .light h2.text-3xl,
+html.light h2.text-4xl, .light h2.text-4xl,
+html.light .font-display, .light .font-display {
+  font-weight: 800 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.25 !important;
+}
+
+/* Featured / Latest post listing card titles */
+html.light h3.text-lg, .light h3.text-lg,
+html.light h3.text-xl, .light h3.text-xl,
+html.light h3.text-2xl, .light h3.text-2xl {
+  font-weight: 750 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.28 !important;
+}
+
+/* Sub-headings, labels, category names */
+html.light h4.text-sm, .light h4.text-sm,
+html.light h4.text-base, .light h4.text-base,
+html.light h5.text-sm, .light h5.text-sm {
+  font-weight: 650 !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.35 !important;
+}
+
+/* Primary paragraph, summary descriptions, and metatext values */
+html.light .text-brand-text-muted, .light .text-brand-text-muted,
+html.light .text-gray-400, .light .text-gray-400,
+html.light p.text-brand-text-muted, .light p.text-brand-text-muted {
+  font-weight: 450 !important;
+  letter-spacing: -0.005em !important;
+  line-height: 1.7 !important;
+}
+
+/* Smooth transitions globally */
+* {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* --- MOBILE TABLE OPTIMIZATION FOR THE ARTICLE READER --- */
+@media (max-width: 768px) {
+  /* Ensure the table itself can display gracefully inside the overflow-x-auto parent wrapper */
+  .prose table, .ProseMirror table, .wp-block-table table, table {
+    display: table !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    margin: 1rem 0 !important;
+    border-radius: 0.5rem !important;
+    border-spacing: 0 !important;
+  }
+
+  /* Make header and body cell padding very tight and remove huge gaps */
+  .prose th, .prose td, 
+  .ProseMirror th, .ProseMirror td, 
+  .wp-block-table th, .wp-block-table td,
+  th, td {
+    padding: 6px 8px !important; /* Drastically reduced cell padding */
+    min-width: unset !important; /* Allow columns to fit smaller viewports */
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    word-break: break-word !important; /* Enable word breaking to avoid layout breaking horizontal scroll */
+  }
+
+  /* Ensure th text and strong formatting stays crisp and tiny */
+  th, .prose th, .ProseMirror th {
+    font-size: 10px !important;
+    letter-spacing: 0.05em !important;
+    padding: 8px 8px !important; /* Slight padding offset for priority headers */
+  }
+
+  /* Force wrap the text elements natively rather than having massive horizontal whitespace */
+  .prose th p, .prose td p, .ProseMirror th p, .ProseMirror td p {
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+  }
+}
+
+/* --- DARK READER IMMERSIVE MULTI-THEME OVERRIDES --- */
+/* Completely ignore global .light overrides when we are inside theme-dark-reader modal */
+html.light .theme-dark-reader, 
+.light .theme-dark-reader,
+html.light [class*="theme-dark-reader"],
+[class*="theme-dark-reader"] {
+  background-color: #0B0F19 !important;
+  color: #FFFFFF !important;
+}
+
+html.light .theme-dark-reader .prose, .light .theme-dark-reader .prose {
+  color: #ECEFF4 !important; /* Extremely high contrast pale gray/white body text */
+}
+
+/* Bright white headers */
+html.light .theme-dark-reader h1, .theme-dark-reader h1,
+html.light .theme-dark-reader h2, .theme-dark-reader h2,
+html.light .theme-dark-reader h3, .theme-dark-reader h3,
+html.light .theme-dark-reader h4, .theme-dark-reader h4,
+html.light .theme-dark-reader h5, .theme-dark-reader h5,
+html.light .theme-dark-reader h6, .theme-dark-reader h6,
+html.light .theme-dark-reader strong, .theme-dark-reader strong,
+html.light .theme-dark-reader .prose h1, .light .theme-dark-reader .prose h1,
+html.light .theme-dark-reader .prose h2, .light .theme-dark-reader .prose h2,
+html.light .theme-dark-reader .prose h3, .light .theme-dark-reader .prose h3,
+html.light .theme-dark-reader .prose h4, .light .theme-dark-reader .prose h4,
+html.light .theme-dark-reader .prose h5, .light .theme-dark-reader .prose h5,
+html.light .theme-dark-reader .prose h6, .light .theme-dark-reader .prose h6,
+html.light .theme-dark-reader .prose strong, .light .theme-dark-reader .prose strong,
+.theme-dark-reader .prose h1, .theme-dark-reader .prose h2, .theme-dark-reader .prose h3, .theme-dark-reader .prose h4, .theme-dark-reader .prose h5, .theme-dark-reader .prose h6, .theme-dark-reader .prose strong {
+  color: #FFFFFF !important;
+}
+
+/* Paragraphs & lists high visibility */
+html.light .theme-dark-reader .prose p, .light .theme-dark-reader .prose p,
+html.light .theme-dark-reader .prose li, .light .theme-dark-reader .prose li,
+.theme-dark-reader .prose p, .theme-dark-reader .prose li {
+  color: #F8FAFC !important; /* Soft bright high-contrast light and clear white text */
+}
+
+/* Beautiful dark contrast tables with bright borders and crispy clean white text */
+html.light .theme-dark-reader .prose table, .light .theme-dark-reader .prose table,
+.theme-dark-reader .prose table {
+  background-color: #131926 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html.light .theme-dark-reader .prose th, .light .theme-dark-reader .prose th,
+.theme-dark-reader .prose th {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  font-weight: 700 !important;
+}
+
+html.light .theme-dark-reader .prose td, .light .theme-dark-reader .prose td,
+.theme-dark-reader .prose td {
+  color: #F3F4F6 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background-color: transparent !important;
+}
+
+/* Comparison tables specific background stripe alternation inside dark mode */
+.theme-dark-reader .prose table tr:nth-child(even) td,
+html.light .theme-dark-reader .prose table tr:nth-child(even) td {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Colors and text gray utility classes inside dark-theme reader modal override */
+html.light .theme-dark-reader .text-white, .theme-dark-reader .text-white { color: #FFFFFF !important; }
+html.light .theme-dark-reader .text-gray-100, .theme-dark-reader .text-gray-100 { color: #F3F4F6 !important; }
+html.light .theme-dark-reader .text-gray-200, .theme-dark-reader .text-gray-200 { color: #E5E7EB !important; }
+html.light .theme-dark-reader .text-gray-300, .theme-dark-reader .text-gray-300 { color: #D1D5DB !important; }
+html.light .theme-dark-reader .text-gray-400, .theme-dark-reader .text-gray-400 { color: #9CA3AF !important; }
+html.light .theme-dark-reader .text-zinc-100, .theme-dark-reader .text-zinc-100 { color: #F4F4F5 !important; }
+html.light .theme-dark-reader .text-zinc-200, .theme-dark-reader .text-zinc-200 { color: #E4E4E7 !important; }
+html.light .theme-dark-reader .text-zinc-300, .theme-dark-reader .text-zinc-300 { color: #D4D4D8 !important; }
+html.light .theme-dark-reader .text-zinc-400, .theme-dark-reader .text-zinc-400 { color: #A1A1AA !important; }
+html.light .theme-dark-reader .text-zinc-500, .theme-dark-reader .text-zinc-500 { color: #71717A !important; }
+html.light .theme-dark-reader .text-zinc-350, .theme-dark-reader .text-zinc-350 { color: #D4D4D8 !important; }
+html.light .theme-dark-reader .text-brand-text-muted, .theme-dark-reader .text-brand-text-muted { color: #D1D5DB !important; }
+
+/* Forces standard backgrounds/borders to stay in dark/opaque styles and override .light values */
+html.light .theme-dark-reader .bg-brand-card,
+.light .theme-dark-reader .bg-brand-card,
+html.light [class*="theme-dark-reader"] .bg-brand-card,
+[class*="theme-dark-reader"] .bg-brand-card {
+  background-color: #121826 !important; /* Premium high contrast dark card background */
+}
+html.light .theme-dark-reader .bg-brand-card\/45,
+.light .theme-dark-reader .bg-brand-card\/45,
+html.light [class*="theme-dark-reader"] .bg-brand-card\/45,
+[class*="theme-dark-reader"] .bg-brand-card\/45 {
+  background-color: rgba(18, 24, 38, 0.45) !important;
+}
+html.light .theme-dark-reader .bg-brand-card\/95,
+.light .theme-dark-reader .bg-brand-card\/95,
+html.light [class*="theme-dark-reader"] .bg-brand-card\/95,
+[class*="theme-dark-reader"] .bg-brand-card\/95 {
+  background-color: rgba(18, 24, 38, 0.95) !important;
+}
+html.light .theme-dark-reader .bg-white\/5, .theme-dark-reader .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+html.light .theme-dark-reader .bg-black\/30, .theme-dark-reader .bg-black\/30 {
+  background-color: rgba(0, 0, 0, 0.35) !important;
+}
+html.light .theme-dark-reader .bg-black\/40, .theme-dark-reader .bg-black\/40 {
+  background-color: rgba(0, 0, 0, 0.45) !important;
+}
+html.light .theme-dark-reader .border-white\/5, .theme-dark-reader .border-white\/5 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html.light .theme-dark-reader .border-white\/10, .theme-dark-reader .border-white\/10 {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Social link buttons and hover colors underneath dark reader modal */
+.theme-dark-reader a[title*="WhatsApp"], html.light .theme-dark-reader a[title*="WhatsApp"],
+.theme-dark-reader a[class*="bg-[#25D366]"], html.light .theme-dark-reader a[class*="bg-[#25D366]"] {
+  background-color: rgba(37, 211, 102, 0.15) !important;
+  color: #4ADE80 !important;
+  border-color: rgba(37, 211, 102, 0.3) !important;
+}
+.theme-dark-reader a[title*="WhatsApp"]:hover, html.light .theme-dark-reader a[title*="WhatsApp"]:hover,
+.theme-dark-reader a[class*="bg-[#25D366]"]:hover, html.light .theme-dark-reader a[class*="bg-[#25D366]"]:hover {
+  background-color: rgba(37, 211, 102, 0.3) !important;
+  color: #FFFFFF !important;
+}
+
+.theme-dark-reader a[title*="Telegram"], html.light .theme-dark-reader a[title*="Telegram"],
+.theme-dark-reader a[class*="bg-[#0088cc]"], html.light .theme-dark-reader a[class*="bg-[#0088cc]"] {
+  background-color: rgba(0, 136, 204, 0.35) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(0, 136, 204, 0.5) !important;
+}
+.theme-dark-reader a[title*="Telegram"]:hover, html.light .theme-dark-reader a[title*="Telegram"]:hover,
+.theme-dark-reader a[class*="bg-[#0088cc]"]:hover, html.light .theme-dark-reader a[class*="bg-[#0088cc]"]:hover {
+  background-color: rgba(0, 136, 204, 0.3) !important;
+  color: #FFFFFF !important;
+}
+
+.theme-dark-reader a[title*="Pinterest"], html.light .theme-dark-reader a[title*="Pinterest"],
+.theme-dark-reader a[class*="bg-[#BD081C]"], html.light .theme-dark-reader a[class*="bg-[#BD081C]"] {
+  background-color: rgba(189, 8, 28, 0.15) !important;
+  color: #F87171 !important;
+  border-color: rgba(189, 8, 28, 0.3) !important;
+}
+.theme-dark-reader a[title*="Pinterest"]:hover, html.light .theme-dark-reader a[title*="Pinterest"]:hover,
+.theme-dark-reader a[class*="bg-[#BD081C]"]:hover, html.light .theme-dark-reader a[class*="bg-[#BD081C]"]:hover {
+  background-color: rgba(189, 8, 28, 0.3) !important;
+  color: #FFFFFF !important;
+}
+
+.theme-dark-reader a[title*="Reddit"], html.light .theme-dark-reader a[title*="Reddit"],
+.theme-dark-reader a[class*="bg-[#FF4500]"], html.light .theme-dark-reader a[class*="bg-[#FF4500]"] {
+  background-color: rgba(255, 69, 0, 0.15) !important;
+  color: #FF7A45 !important;
+  border-color: rgba(255, 69, 0, 0.3) !important;
+}
+.theme-dark-reader a[title*="Reddit"]:hover, html.light .theme-dark-reader a[title*="Reddit"]:hover,
+.theme-dark-reader a[class*="bg-[#FF4500]"]:hover, html.light .theme-dark-reader a[class*="bg-[#FF4500]"]:hover {
+  background-color: rgba(255, 69, 0, 0.3) !important;
+  color: #FFFFFF !important;
+}
+
+.theme-dark-reader a[title*="Facebook"], html.light .theme-dark-reader a[title*="Facebook"],
+.theme-dark-reader a[class*="bg-[#1877F2]"], html.light .theme-dark-reader a[class*="bg-[#1877F2]"] {
+  background-color: rgba(24, 119, 242, 0.35) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(24, 119, 242, 0.5) !important;
+}
+.theme-dark-reader a[title*="Facebook"]:hover, html.light .theme-dark-reader a[title*="Facebook"]:hover,
+.theme-dark-reader a[class*="bg-[#1877F2]"]:hover, html.light .theme-dark-reader a[class*="bg-[#1877F2]"]:hover {
+  background-color: rgba(24, 119, 242, 0.3) !important;
+  color: #FFFFFF !important;
+}
+
+/* Inputs and forms underneath dark reader modal (e.g. Comments form) */
+html.light .theme-dark-reader input, .theme-dark-reader input,
+html.light .theme-dark-reader textarea, .theme-dark-reader textarea {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+}
+html.light .theme-dark-reader input::placeholder, .theme-dark-reader input::placeholder,
+html.light .theme-dark-reader textarea::placeholder, .theme-dark-reader textarea::placeholder {
+  color: #6B7280 !important;
+}
+
+/* Post comment button contrast */
+.theme-dark-reader button[type="submit"] {
+  background-color: #7C3AED !important;
+  color: #FFFFFF !important;
+}
+.theme-dark-reader button[type="submit"]:hover {
+  background-color: #6D28D9 !important;
+}
+
+/* Table of Contents and Sidebar Hover Fixes under Dark Theme Reader */
+.theme-dark-reader nav button,
+html.light .theme-dark-reader nav button {
+  color: #E2E8F0;
+}
+
+.theme-dark-reader nav button:hover,
+html.light .theme-dark-reader nav button:hover {
+  color: #C084FC !important; /* Vibrant high contrast purple on hover */
+  text-decoration: none !important;
+}
+/* Scrollbar customization for TOC */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.3);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.5);
+}
+
+html.light .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.2);
+}
+
+html.light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.4);
+}
+
+/* Tag buttons hover fix */
+.theme-dark-reader button[title^="Filter by tag"]:hover,
+html.light .theme-dark-reader button[title^="Filter by tag"]:hover,
+.theme-dark-reader .cursor-pointer:hover,
+html.light .theme-dark-reader .cursor-pointer:hover {
+  color: #D8B4FE !important; /* Brighter lavender purple */
+  background-color: rgba(167, 139, 250, 0.2) !important;
+  border-color: rgba(167, 139, 250, 0.45) !important;
+}
+
+/* Keep "Like this article?" badge extremely visible */
+.theme-dark-reader span.bg-brand-purple\/20,
+html.light .theme-dark-reader span.bg-brand-purple\/20 {
+  background-color: rgba(124, 58, 237, 0.25) !important;
+  color: #D8B4FE !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+}
+
+/* Sticky TOC Header highlight */
+.theme-dark-reader .sticky div,
+html.light .theme-dark-reader .sticky div,
+.theme-dark-reader .lg\:hidden div,
+html.light .theme-dark-reader .lg\:hidden div {
+  color: #C084FC !important; /* Beautiful purple accented header */
+}
+
+
+

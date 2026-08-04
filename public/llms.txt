@@ -1,0 +1,16 @@
+# MindWriter Blog
+
+> Telugu-first digital publication covering AI news, tools, and psychology/wellness insights, published by MindWriter.
+
+MindWriter publishes articles primarily in Telugu (with clinical/technical English terms preserved where relevant) across AI news, AI tools, and mental-health/psychology topics.
+
+## Site
+
+- [Home](https://mindwriter.in/): Latest articles, featured stories, and category navigation.
+- [Sitemap](https://mindwriter.in/sitemap.xml): Full list of published article URLs.
+- [News Sitemap](https://mindwriter.in/news-sitemap.xml): Recently published articles (Google News format).
+
+## Usage notes
+
+- Article pages are served as a client-rendered single-page app; known link-preview bots receive pre-rendered Open Graph tags, and all other crawlers/agents should follow the sitemap links above to discover individual article URLs.
+- All published content is authored/attributed to "MindWriter".
